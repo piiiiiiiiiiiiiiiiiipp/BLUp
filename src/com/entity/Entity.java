@@ -2,6 +2,7 @@ package com.entity;
 
 import com.company.GamePanel;
 import com.company.UtilityTool;
+import com.company.object.SuperObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,14 +31,19 @@ public class Entity implements EntityFactory{
     public int actionLockCounter = 0;
 
 
-
-    public  boolean invincible = false;
-    public  int invincibleCounter = 0;
+    public boolean invincible = false;
+    public int invincibleCounter = 0;
     boolean attacking = false;
+    public boolean alive = true;
+    public boolean dying = false;
+    int deadCounter = 0;
 
 
+    public boolean hpBarOn = false;
+    public int barCounter;
 
-    public int type ; // 0 player, 1 npc, 2 monster;
+
+    public int type; // 0 player, 1 npc, 2 monster;
 
 
     String[] dialogues = new String[20];
@@ -48,6 +54,16 @@ public class Entity implements EntityFactory{
 
     public int maxLife;
     public int life;
+    public int level = 1;
+    public int strength;
+    public int dexterity;
+    public int attack;
+    public int defense;
+    public int exp;
+    public int nextLevel;
+    public int coin;
+    public SuperObject currentWeapon;
+    public SuperObject currentShield;
 
 
     public Entity(GamePanel gp) {
@@ -59,7 +75,7 @@ public class Entity implements EntityFactory{
         BufferedImage image = null;
         try {
             image = ImageIO.read(getClass().getResourceAsStream("/res/" + imagePath + ".png")); //wall tile trial
-            image = utilityTool.scalesImage(image, width,height);
+            image = utilityTool.scalesImage(image, width, height);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -67,15 +83,19 @@ public class Entity implements EntityFactory{
         return image;
     }
 
-    public void setAction(){}
+    public void setAction() {
+    }
+
+    public void damageReaction() {
+    }
 
     @Override
     public Entity createEntity() {
         return this;
     }
 
-    public void speak(){
-        if (dialogues[dialogueIndex] == null){
+    public void speak() {
+        if (dialogues[dialogueIndex] == null) {
             dialogueIndex = 0;
         }
         gp.ui.currentDialog = dialogues[dialogueIndex];
@@ -97,20 +117,22 @@ public class Entity implements EntityFactory{
                 break;
         }
     }
+
     public void update(){
 
         setAction();
         collisionOn = false;
         gp.collisionChecker.checkTile(this);
         gp.collisionChecker.checkObject(this,false);
-       boolean contactPlayer =  gp.collisionChecker.checkPlayer(this);
+        boolean contactPlayer =  gp.collisionChecker.checkPlayer(this);
         gp.collisionChecker.checkEntity(this,gp.monster);
         gp.collisionChecker.checkEntity(this,gp.npc);
 
         if ( this.type == 2 && contactPlayer){
             if (!gp.player.invincible){
                 //can give damage
-                gp.player.life -=1;
+                gp.playSE(6);
+                gp.player.life -= 1;
                 gp.player.invincible = true;
             }
         }
@@ -193,15 +215,80 @@ public class Entity implements EntityFactory{
                     break;
             }
 
+            //HP
+            if (type == 2 && hpBarOn) {
+
+                double oneScale = (double) gp.tileSize / maxLife;
+                double hpValue = oneScale * life;
+
+
+                g2.setColor(new Color(35, 35, 35));
+                g2.fillRect(screenX - 1, screenY - 16, gp.tileSize + 2, 12);
+                g2.setColor(new Color(255, 0, 30));
+                g2.fillRect(screenX, screenY - 15, (int) hpValue, 10);
+                barCounter++;
+
+                if (barCounter > 420) {
+                    barCounter = 0;
+                    hpBarOn = false;
+                }
+
+            }
+
             if (invincible) {
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+                hpBarOn = true;
+                barCounter = 0;
+                changeAlpha(g2, 0.4f);
+            }
+            if (dying) {
+                dyingAnimation(g2);
             }
 
             g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
 
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            changeAlpha(g2, 1f);
         }
 
 
+    }
+
+    public void dyingAnimation(Graphics2D g2) {
+
+        deadCounter++;
+        int i = 5;
+
+        if (deadCounter <= i) {
+            changeAlpha(g2, 0f);
+        }
+        if (deadCounter > i && deadCounter <= i * 2) {
+            changeAlpha(g2, 1f);
+        }
+        if (deadCounter > i * 2 && deadCounter <= i * 3) {
+            changeAlpha(g2, 0f);
+        }
+        if (deadCounter > i * 3 && deadCounter <= i * 4) {
+            changeAlpha(g2, 1f);
+        }
+        if (deadCounter > i * 4 && deadCounter <= i * 5) {
+            changeAlpha(g2, 0f);
+        }
+        if (deadCounter > i * 5 && deadCounter <= i * 6) {
+            changeAlpha(g2, 1f);
+        }
+        if (deadCounter > i * 6 && deadCounter <= i * 7) {
+            changeAlpha(g2, 0f);
+        }
+        if (deadCounter > i * 7 && deadCounter <= i * 8) {
+            changeAlpha(g2, 1f);
+        }
+        if (deadCounter > i * 8) {
+            dying = false;
+            alive = false;
+        }
+
+    }
+
+    public void changeAlpha(Graphics2D g2, float alpha) {
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
     }
 }

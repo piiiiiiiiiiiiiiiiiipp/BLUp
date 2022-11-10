@@ -2,6 +2,7 @@ package com.entity;
 
 import com.company.GamePanel;
 import com.company.KeyHandler;
+import com.company.object.Obj_Sword_Normal;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,8 @@ public class Player extends Entity implements EntityFactory {
     public final int screenX;
     public final int screenY;
     int standCounter = 0;
+
+    public boolean attackCanceled = true;
 
 
     public int hasKey = 0;
@@ -40,8 +43,6 @@ public class Player extends Entity implements EntityFactory {
     public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
-//        worldX = gp.tileSize * 10;
-//        worldY = gp.tileSize * 13;
         speed = 4;
         direction = "down";
         name = "Player";
@@ -50,6 +51,15 @@ public class Player extends Entity implements EntityFactory {
         //PLAYER STATES
         maxLife = 6; // 1 = half heart,  6 = 3 full hearts
         life = maxLife;
+
+        level = 1;
+        strength = 1;
+        dexterity = 1;
+        exp = 0;
+        nextLevel = 5;
+        coin = 0;
+        currentWeapon = new Obj_Sword_Normal(gp);
+
     }
 
     public void getPlayerImage() {
@@ -133,6 +143,13 @@ public class Player extends Entity implements EntityFactory {
                 }
             }
 
+            if (keyHandler.enterPressed && !attackCanceled) {
+                attacking = true;
+                spriteCounter = 0;
+
+            }
+
+            attackCanceled = false;
 
             gp.keyHandler.enterPressed = false;
 
@@ -220,11 +237,13 @@ public class Player extends Entity implements EntityFactory {
     private void damageMonster(int i) {
         if (i != 999) {
             if (!gp.monster[i].invincible){
+                gp.playSE(6);
                 gp.monster[i].life -= 1;
                 gp.monster[i].invincible = true;
+                gp.monster[i].damageReaction();
 
                 if (gp.monster[i].life <= 0){
-                    gp.monster[i] = null;
+                    gp.monster[i].dying = true;
                 }
             }
         }
@@ -236,21 +255,20 @@ public class Player extends Entity implements EntityFactory {
 //                gp.gameState = gp.dialogState;
 //                gp.monster[i].speak();
 //            }
-            if (!invincible)
+            if (!invincible) {
+                gp.playSE(5);
                 life -= 1;
-            invincible = true;
+                invincible = true;
+            }
         }
     }
 
     public void interactNPC(int i) {
         if (gp.keyHandler.enterPressed) {
             if (i != 999) {
-
+                attackCanceled = true;
                 gp.gameState = gp.dialogState;
                 gp.npc[i].speak();
-            } else {
-                attacking = true;
-                gp.keyHandler.enterPressed = false;
             }
 
         }
@@ -396,15 +414,15 @@ public class Player extends Entity implements EntityFactory {
 
     }
 
-    public void showAttackArea(Graphics2D g2,int tempX,int tempY){
+    public void showAttackArea(Graphics2D g2,int tempX,int tempY) {
         // AttackArea
         tempX = screenX + solidArea.x;
         tempY = screenY + solidArea.y;
-        switch(direction) {
-            case "up": tempY = screenY - attackArea.height; break;
-            case "down": tempY = screenY + gp.tileSize; break;
-            case "left": tempX = screenX - attackArea.width; break;
-            case "right": tempX = screenX + gp.tileSize; break;
+        switch (direction) {
+            case "up" -> tempY = screenY - attackArea.height;
+            case "down" -> tempY = screenY + gp.tileSize;
+            case "left" -> tempX = screenX - attackArea.width;
+            case "right" -> tempX = screenX + gp.tileSize;
         }
         g2.setColor(Color.red);
         g2.setStroke(new BasicStroke(1));

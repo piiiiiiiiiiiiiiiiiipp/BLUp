@@ -30,7 +30,6 @@ public class EventHandler {
             }
         }
 
-
     }
 
     public void checkEvent(){
@@ -40,8 +39,10 @@ public class EventHandler {
 //        if(hit(27, 16, "right")){
 //            teleport(gp.dialogState);
 //        }
+
         if(hit(23, 12, "up")){
             healingPoll(gp.dialogState);
+
         }
 
 
@@ -59,20 +60,23 @@ public class EventHandler {
 
     private void damagePit(int gameState) {
         gp.gameState = gameState;
+        gp.playSE(6);
         gp.ui.currentDialog = "You fall into a pit!";
         gp.player.life -=1;
 
     }
 
     private void healingPoll(int gameState) {
-        if (gp.keyHandler.enterPressed){
-            if(gp.player.life < gp.player.maxLife){
-            gp.gameState = gameState;
-            gp.ui.currentDialog = "You drank the healing water.";
-            gp.player.life +=1;
-            }
-            else{
-            gp.ui.showMessage( "The healing water is here.");
+
+        if (gp.keyHandler.enterPressed) {
+            gp.player.attackCanceled = true;
+            if (gp.player.life < gp.player.maxLife) {
+                gp.gameState = gameState;
+                gp.ui.currentDialog = "You drank the healing water.";
+                gp.player.life += 1;
+                gp.playSE(2);
+            } else if (gp.player.life == gp.player.maxLife) {
+                gp.ui.showMessage("The healing water is here.");
             }
         }
     }
