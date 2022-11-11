@@ -22,6 +22,8 @@ GamePanel gp ;
         attack = 5;
         defense = 0;
 
+        exp = 1;
+
         solidArea.x = 3;
         solidArea.y = 18;
         solidArea.width = 42;
@@ -69,6 +71,5 @@ GamePanel gp ;
     public void damageReaction() {
         actionLockCounter = 0;
         direction = gp.player.direction;
-
     }
 }

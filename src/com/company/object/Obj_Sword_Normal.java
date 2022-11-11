@@ -11,7 +11,8 @@ public class Obj_Sword_Normal extends SuperObject {
         name = "Normal Sword";
         this.gp = gp;
         attackValue = 1;
-
+        type = type_sword;
+        description = "[" + name + "] \nA sword made of iron.\n";
         try {
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/sword_normal.png"));
             image = utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);

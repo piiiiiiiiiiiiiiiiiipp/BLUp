@@ -18,9 +18,11 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxScreenCol = 20;
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
-    public final int screenWidth2 = screenWidth; //full screen
+    public int screenWidth2 = screenWidth; //full screen
     public final int screenHeight = tileSize * maxScreenRow;
-    public final int screenHeight2 = screenHeight;
+    public int screenHeight2 = screenHeight;
+
+    public boolean fullScreenOn = false;
 
     BufferedImage tempScreen;
     Graphics2D g2;
@@ -34,6 +36,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     //FPS
     int FPS = 60;
+
+    Config config = new Config(this);
 
     //SYSTEM
     Thread gameThread;
@@ -65,6 +69,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int pauseState = 2;
     public final int dialogState = 3;
     public final int characterState = 4;
+    public final int optionState = 5;
+    public final int gameOverState = 6;
 
 
     public GamePanel() {
@@ -87,6 +93,36 @@ public class GamePanel extends JPanel implements Runnable {
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
+
+        if (fullScreenOn) {
+            setFullScreen();
+        }
+    }
+
+    public void retry() {
+        player.restoreLife();
+        player.setDefaultPositions();
+        assetSetter.setObj();
+        assetSetter.setNpc();
+        assetSetter.setMonster();
+    }
+
+    public void restart() {
+        player.setDefaultValues();
+        assetSetter.setObj();
+        assetSetter.setNpc();
+        assetSetter.setMonster();
+        player.setItems();
+    }
+
+    public void setFullScreen() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        gd.setFullScreenWindow(Main.window);
+
+        screenWidth2 = Main.window.getWidth();
+        screenHeight2 = Main.window.getHeight();
+
     }
 
     public void startGameThread() {
@@ -197,52 +233,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-//    public void paintComponent(Graphics g) {
-//        super.paintComponent(g);
-//        Graphics2D g2 = (Graphics2D) g;
-//
-//
-//        //title state
-//
-//        if(gameState == titleState){
-//            ui.draw(g2);
-//        }
-//        //
-//        else{
-//            //map
-//            tileManager.draw(g2);
-//
-//            //object
-//            for (SuperObject superObject : obj) {
-//                if (superObject != null) {
-//                    superObject.draw(g2, this);
-//                }
-//            }
-//            //
-//            for (Entity entity : npc) {
-//                if (entity != null) {
-//                    entity.draw(g2);
-//                }
-//            }
-//     for (Entity entity : monster) {
-//        if (entity != null) {
-//            entity.draw(g2);
-//        }
-//    }
-//            //player
-//            player.draw(g2);
-//
-//            //UI
-//
-//            ui.draw(g2);
-//
-//        }
-//
-//
-//
-//
-//        g2.dispose();
-//    }
 
     public void drawToScreen() {
 
@@ -271,3 +261,4 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
 }
+

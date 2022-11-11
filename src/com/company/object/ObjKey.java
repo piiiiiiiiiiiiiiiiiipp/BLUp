@@ -15,7 +15,7 @@ public class ObjKey extends SuperObject{
 
         try{
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/key.png"));
-            utilityTool.scalesImage(image,gp.tileSize,gp.tileSize);
+            image = utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
         }catch(IOException e){
             e.printStackTrace();
         }

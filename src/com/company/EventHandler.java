@@ -75,6 +75,8 @@ public class EventHandler {
                 gp.ui.currentDialog = "You drank the healing water.";
                 gp.player.life += 1;
                 gp.playSE(2);
+
+                gp.assetSetter.setMonster();
             } else if (gp.player.life == gp.player.maxLife) {
                 gp.ui.showMessage("The healing water is here.");
             }

@@ -14,7 +14,7 @@ public class ObjBoot extends SuperObject{
         try{
 
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/boot.png"));
-            utilityTool.scalesImage(image,gp.tileSize,gp.tileSize);
+            image = utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
         }catch(IOException e){
             e.printStackTrace();
         }

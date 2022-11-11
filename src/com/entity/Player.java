@@ -2,11 +2,14 @@ package com.entity;
 
 import com.company.GamePanel;
 import com.company.KeyHandler;
+import com.company.object.ObjKey;
 import com.company.object.Obj_Shield_Wood;
 import com.company.object.Obj_Sword_Normal;
+import com.company.object.SuperObject;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Player extends Entity implements EntityFactory {
     public KeyHandler keyHandler;
@@ -16,6 +19,9 @@ public class Player extends Entity implements EntityFactory {
     int standCounter = 0;
 
     public boolean attackCanceled = true;
+
+    public ArrayList<SuperObject> inventory = new ArrayList<>();
+    public final int inventorySize = 20;
 
 
     public int hasKey = 0;
@@ -39,6 +45,7 @@ public class Player extends Entity implements EntityFactory {
         setDefaultValues();
         getPlayerImage();
         getPlayerAttackImage();
+        setItems();
     }
 
     public void setDefaultValues() {
@@ -62,10 +69,26 @@ public class Player extends Entity implements EntityFactory {
         currentWeapon = new Obj_Sword_Normal(gp);
         currentShield = new Obj_Shield_Wood(gp);
         attack = getAttack();
-
         defense = getDefense();
 
 
+    }
+
+    public void setDefaultPositions() {
+        worldX = gp.tileSize * 23;
+        worldY = gp.tileSize * 21;
+        direction = "down";
+    }
+
+    public void restoreLife() {
+        life = maxLife;
+        invincible = false;
+    }
+
+    public void setItems() {
+        inventory.clear();
+        inventory.add(currentShield);
+        inventory.add(currentWeapon);
     }
 
     private int getDefense() {
@@ -73,6 +96,7 @@ public class Player extends Entity implements EntityFactory {
     }
 
     public int getAttack() {
+
         return attack = strength * currentWeapon.attackValue;
     }
 
@@ -193,7 +217,11 @@ public class Player extends Entity implements EntityFactory {
                 invincibleCounter = 0;
             }
         }
-
+        if (life <= 0) {
+            gp.gameState = gp.gameOverState;
+            gp.playSE(9);
+            gp.stopMusic();
+        }
     }
 
     private void attackingMethod() {
@@ -264,8 +292,27 @@ public class Player extends Entity implements EntityFactory {
 
                 if (gp.monster[i].life <= 0) {
                     gp.monster[i].dying = true;
+                    exp += gp.monster[i].exp;
+                    gp.ui.showMessage("Exp + " + gp.monster[i].exp);
+                    checkLevelup();
                 }
             }
+        }
+    }
+
+    public void checkLevelup() {
+        if (exp >= nextLevel) {
+            level++;
+            nextLevel = nextLevel * 2;
+            maxLife += 2;
+            strength++;
+            dexterity++;
+            attack = getAttack();
+            defense = getDefense();
+
+            gp.playSE(7);
+            gp.gameState = gp.dialogState;
+            gp.ui.currentDialog = "You are level " + level + " now!\n";
         }
     }
 
@@ -304,29 +351,60 @@ public class Player extends Entity implements EntityFactory {
     public void pickUpObject(int i) {
         if (i != 999) {
 
+
             String objName = gp.obj[i].name;
             switch (objName) {
                 case "key":
-                    gp.playSE(1);
-                    hasKey++;
-                    gp.obj[i] = null;
+                    if (inventory.size() != inventorySize) {
+                        gp.playSE(1);
+                        hasKey++;
+                        inventory.add(gp.obj[i]);
+                        gp.obj[i] = null;
 
-                    gp.ui.showMessage("You've found a key!");
+                        gp.ui.showMessage("You've found a key!");
+                    } else {
+                        gp.ui.showMessage("Your inventory is full :(");
+                    }
+                    break;
+                case "Iron Axe":
+                    if (inventory.size() != inventorySize) {
+                        gp.playSE(1);
+                        inventory.add(gp.obj[i]);
+                        gp.obj[i] = null;
+                        gp.ui.showMessage("You've found a axe!");
+                    } else {
+                        gp.ui.showMessage("Your inventory is full :(");
+                    }
                     break;
                 case "door":
-                    if (hasKey > 0) {
-                        gp.playSE(3);
-                        gp.obj[i] = null;
-                        hasKey--;
-                        gp.ui.showMessage("You've opened the door");
-                    } else
-                        gp.ui.showMessage("You need a key!");
+                    for (SuperObject l : gp.player.inventory) {
+
+                        if (l.getClass().getSimpleName().equals("ObjKey") && gp.player.inventory.contains(l)) {
+                            if (hasKey > 0) {
+                                gp.playSE(3);
+                                gp.player.inventory.remove(l);
+                                gp.obj[i] = null;
+                                hasKey--;
+                                gp.ui.showMessage("You've opened the door");
+                                break;
+                            }
+                        } else
+                            gp.ui.showMessage("You need a key!");
+
+
+                    }
                     break;
                 case "boot":
-                    gp.playSE(2);
-                    speed += 1;
-                    gp.obj[i] = null;
-                    gp.ui.showMessage("Run, baby, run");
+                    if (inventory.size() != inventorySize) {
+                        gp.playSE(2);
+                        speed += 1;
+                        inventory.add(gp.obj[i]);
+                        gp.obj[i] = null;
+                        gp.ui.showMessage("Run, baby, run");
+
+                    } else {
+                        gp.ui.showMessage("Your inventory is full :(");
+                    }
                     break;
                 case "chest":
                     gp.ui.gameFinish = true;
@@ -335,7 +413,22 @@ public class Player extends Entity implements EntityFactory {
                     break;
             }
         }
+    }
 
+    public void selectItem() {
+        int itemIndex = gp.ui.getItemIndexOnSlot();
+        if (itemIndex < inventory.size()) {
+            SuperObject selectedItem = inventory.get(itemIndex);
+            if (selectedItem.type == selectedItem.type_sword
+                    || selectedItem.type == selectedItem.type_axe) {
+                currentWeapon = selectedItem;
+                attack = getAttack();
+            }
+            if (selectedItem.type == selectedItem.type_shield) {
+                currentShield = selectedItem;
+                defense = getDefense();
+            }
+        }
     }
 
     public void draw(Graphics2D g2) {

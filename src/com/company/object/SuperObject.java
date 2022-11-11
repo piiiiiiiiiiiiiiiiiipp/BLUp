@@ -22,6 +22,12 @@ public abstract class SuperObject implements Cloneable {
 
     public int attackValue;
     public int defenseValue;
+    public String description = "";
+    public int type;
+    public final int type_sword = 0;
+    public final int type_shield = 1;
+    public final int type_axe = 2;
+    public final int type_consumable = 2;
 
 
     public void draw(Graphics2D g2, GamePanel gp) {

@@ -13,6 +13,8 @@ public class Obj_Shield_Wood extends SuperObject {
         name = "Wood Shield";
         this.gp = gp;
         defenseValue = 1;
+        type = type_shield;
+        description = "[" + name + "] \nA sword.\n";
         try {
 
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/shield_wood.png"));
