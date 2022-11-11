@@ -1,11 +1,14 @@
 package com.entity;
 
+import com.company.Context;
 import com.company.GamePanel;
 import com.company.KeyHandler;
 import com.company.object.ObjKey;
 import com.company.object.Obj_Shield_Wood;
 import com.company.object.Obj_Sword_Normal;
 import com.company.object.SuperObject;
+import com.company.strategies.AxeShield;
+import com.company.strategies.SwordShield;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -23,6 +26,7 @@ public class Player extends Entity implements EntityFactory {
     public ArrayList<SuperObject> inventory = new ArrayList<>();
     public final int inventorySize = 20;
 
+    public Context context;
 
     public int hasKey = 0;
 
@@ -91,12 +95,25 @@ public class Player extends Entity implements EntityFactory {
         inventory.add(currentWeapon);
     }
 
-    private int getDefense() {
+    public int getDefense() {
+        if (currentWeapon.type == 0) {
+            context = new Context(new SwordShield(), gp);
+            return context.getDefense();
+        } else if (currentWeapon.type == 2) {
+            context = new Context(new AxeShield(), gp);
+            return context.getDefense();
+        }
         return defense = dexterity * currentShield.defenseValue;
     }
 
     public int getAttack() {
-
+        if (currentWeapon.type == 0) {
+            context = new Context(new SwordShield(), gp);
+            return context.getAttack();
+        } else if (currentWeapon.type == 2) {
+            context = new Context(new AxeShield(), gp);
+            return context.getAttack();
+        }
         return attack = strength * currentWeapon.attackValue;
     }
 
