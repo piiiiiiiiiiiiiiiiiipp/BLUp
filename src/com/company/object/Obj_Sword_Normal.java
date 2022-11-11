@@ -14,7 +14,7 @@ public class Obj_Sword_Normal extends SuperObject {
 
         try {
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/sword_normal.png"));
-            utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
+            image = utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
         } catch (IOException e) {
             e.printStackTrace();
         }

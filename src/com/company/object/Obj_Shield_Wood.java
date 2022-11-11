@@ -16,7 +16,7 @@ public class Obj_Shield_Wood extends SuperObject {
         try {
 
             image = ImageIO.read(getClass().getResourceAsStream("/res/objects/shield_wood.png"));
-            utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
+            image = utilityTool.scalesImage(image, gp.tileSize, gp.tileSize);
         } catch (IOException e) {
             e.printStackTrace();
         }

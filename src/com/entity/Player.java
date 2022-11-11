@@ -2,6 +2,7 @@ package com.entity;
 
 import com.company.GamePanel;
 import com.company.KeyHandler;
+import com.company.object.Obj_Shield_Wood;
 import com.company.object.Obj_Sword_Normal;
 
 import java.awt.*;
@@ -59,7 +60,20 @@ public class Player extends Entity implements EntityFactory {
         nextLevel = 5;
         coin = 0;
         currentWeapon = new Obj_Sword_Normal(gp);
+        currentShield = new Obj_Shield_Wood(gp);
+        attack = getAttack();
 
+        defense = getDefense();
+
+
+    }
+
+    private int getDefense() {
+        return defense = dexterity * currentShield.defenseValue;
+    }
+
+    public int getAttack() {
+        return attack = strength * currentWeapon.attackValue;
     }
 
     public void getPlayerImage() {

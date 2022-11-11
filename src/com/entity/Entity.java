@@ -65,6 +65,8 @@ public class Entity implements EntityFactory{
     public SuperObject currentWeapon;
     public SuperObject currentShield;
 
+    //ITEM ATTRIBUTE
+
 
     public Entity(GamePanel gp) {
         this.gp = gp;
