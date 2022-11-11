@@ -252,11 +252,17 @@ public class Player extends Entity implements EntityFactory {
         if (i != 999) {
             if (!gp.monster[i].invincible){
                 gp.playSE(6);
-                gp.monster[i].life -= 1;
+
+                int damage = attack - gp.monster[i].defense;
+                if (damage < 0) {
+                    damage = 0;
+
+                }
+                gp.monster[i].life -= damage;
                 gp.monster[i].invincible = true;
                 gp.monster[i].damageReaction();
 
-                if (gp.monster[i].life <= 0){
+                if (gp.monster[i].life <= 0) {
                     gp.monster[i].dying = true;
                 }
             }
@@ -269,9 +275,15 @@ public class Player extends Entity implements EntityFactory {
 //                gp.gameState = gp.dialogState;
 //                gp.monster[i].speak();
 //            }
+
             if (!invincible) {
                 gp.playSE(5);
-                life -= 1;
+                int damage = attack - gp.monster[i].defense;
+                if (damage < 0) {
+                    damage = 0;
+
+                }
+                life -= damage;
                 invincible = true;
             }
         }

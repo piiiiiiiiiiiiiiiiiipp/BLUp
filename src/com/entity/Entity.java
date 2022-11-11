@@ -89,6 +89,7 @@ public class Entity implements EntityFactory{
     }
 
     public void damageReaction() {
+
     }
 
     @Override
@@ -134,7 +135,11 @@ public class Entity implements EntityFactory{
             if (!gp.player.invincible){
                 //can give damage
                 gp.playSE(6);
-                gp.player.life -= 1;
+                int damage = attack - gp.player.defense;
+                if (damage < 0) {
+                    damage = 0;
+                }
+                gp.player.life -= damage;
                 gp.player.invincible = true;
             }
         }
@@ -142,18 +147,10 @@ public class Entity implements EntityFactory{
         //if collision is false, player can move
         if (!collisionOn) {
             switch (direction) {
-                case "up":
-                    worldY -= speed;
-                    break;
-                case "down":
-                    worldY += speed;
-                    break;
-                case "left":
-                    worldX -= speed;
-                    break;
-                case "right":
-                    worldX += speed;
-                    break;
+                case "up" -> worldY -= speed;
+                case "down" -> worldY += speed;
+                case "left" -> worldX -= speed;
+                case "right" -> worldX += speed;
             }
         }
 
